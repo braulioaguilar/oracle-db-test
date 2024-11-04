@@ -1,0 +1,37 @@
+x-common-variables: &common-variables
+  ORACLE_HOST: oracle
+  ORACLE_PORT: 1521
+  ORACLE_USER: TEST
+  ORACLE_PASSWORD: test123
+  ORACLE_SERVICE: FREEPDB1
+
+services:
+  oracle_db:
+    image: gvenzl/oracle-free
+    container_name: oracle
+    ports:
+      - "1521:1521" 
+    environment:
+      ORACLE_PASSWORD: password
+    volumes:
+      - ./scripts/init.sql:/container-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "echo 'SELECT 1 FROM dual;' | sqlplus -s SYSTEM/password@0.0.0.0:1521/FREEPDB1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  python_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      oracle_db:
+        condition: service_healthy
+    environment: *common-variables
+    container_name: python_app
+    volumes:
+      - ./app:/app
+    links:
+      - oracle_db
+    command: ["python", "/app/app.py"]
