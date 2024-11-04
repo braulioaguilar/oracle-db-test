@@ -57,7 +57,7 @@ print(f"Query string {query_string}")
 try:
     print("Setting up notification listener...")
     qos = oracledb.SUBSCR_QOS_QUERY | oracledb.SUBSCR_QOS_ROWIDS
-    sub = connection.subscribe(callback=callback, timeout=1800, qos=qos, client_initiated=True)
+    sub = connection.subscribe(callback=callback, timeout=0, qos=qos, client_initiated=True)
     print("Subscription:", sub)
     print("--> Connection:", sub.connection)
     print("--> Callback:", sub.callback)
